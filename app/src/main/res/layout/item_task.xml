@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    android:id="@+id/task_card_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,8 +18,10 @@
         android:padding="12dp"
         >
         <CheckBox
+            android:id="@+id/checkbox_complete"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:buttonTint="@color/task_main_text_light"
             />
 
         <LinearLayout
@@ -37,7 +41,8 @@
                 android:textStyle="bold"
                 android:textColor="@color/task_main_text_light"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:visibility="gone"/>
 
             <!-- Описание задачи -->
             <TextView
@@ -54,9 +59,10 @@
         </LinearLayout>
 
         <ImageButton
+            android:id="@+id/button_delete"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/delete_icon"
+            android:src="@drawable/delete_ic"
             android:backgroundTint="@color/task_bg_light"
             />
 
