@@ -1,8 +1,8 @@
 package com.example.todolistev
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.todolistev.databinding.ActivityMainBinding
+import com.example.todolistev.databinding.CustomDialogLayoutBinding
 import com.example.todolistev.presentation.TaskAdapter
 import com.example.todolistev.presentation.TaskViewModel
 import com.example.todolistev.presentation.TaskViewModelFactory
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: TaskViewModel
     private lateinit var adapter: TaskAdapter
     private lateinit var mainBinding: ActivityMainBinding
+    private lateinit var dialogBinding: CustomDialogLayoutBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,27 +50,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showAddTaskDialog() {
-        val inputEditTitle = EditText(this)
-        inputEditTitle.hint = "Введите название задачи"
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog_layout, null)
+        dialogBinding = CustomDialogLayoutBinding.bind(dialogView)
 
 //        Todo mb
 //        val inputEditDescription = EditText(this)
 //        inputEditTitle.hint = "Введите текст задачи"
 
-        AlertDialog.Builder(this)
-            .setTitle("Новая задача")
-            .setMessage("Пожалуйста, введите текст для добавления в БД")
-            .setView(inputEditTitle)
-            .setPositiveButton("Добавить") { dialog, which ->
-                val taskText = inputEditTitle.text.toString().trim()
-                if (taskText.isNotEmpty()) {
-                    addNewTask(taskText)
-                } else {
-                    Toast.makeText(this, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
-                }
+        val alertDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        alertDialog.show()
+
+        dialogBinding.dialogAddBtn.setOnClickListener { view ->
+            val taskText = dialogBinding.inputTaskText.text.toString().trim()
+            if (taskText.isNotEmpty()) {
+                addNewTask(taskText)
+                alertDialog.cancel()
+            } else {
+                Toast.makeText(this, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Отмена", null)
-            .show()
+        }
     }
 
     private fun addNewTask(taskText: String) {
@@ -104,6 +107,9 @@ class MainActivity : AppCompatActivity() {
             },
             onTaskDelete = { task ->
                 viewModel.deleteTask(task)
+            },
+            onTaskEdit = { task ->
+                viewModel.updateTask(task)
             }
         )
 

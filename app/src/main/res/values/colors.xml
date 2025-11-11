@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="black">#1E1E23</color>
     <color name="white">#FFFFFFFF</color>
     <color name="bg_primary_light">#556BB5</color>
     <color name="main_text_light">#F6F3F5</color>
@@ -8,4 +8,6 @@
     <color name="task_main_text_light">#2F2F2F</color>
     <color name="task_secondary_text_light">#6B6B6B</color>
     <color name="floating_btn_light">#DDECF6</color>
+    <color name="dialog_add_btn_light">#ABADB6</color>
+    <color name="dialog_bg_behavior">#1F2945</color>
 </resources>

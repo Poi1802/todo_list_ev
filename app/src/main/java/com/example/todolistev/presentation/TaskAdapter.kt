@@ -9,7 +9,8 @@ import com.example.todolistev.data.model.TaskEntity
 
 class TaskAdapter(
     private val onTaskComplete: (TaskEntity) -> Unit,
-    private val onTaskDelete: (TaskEntity) -> Unit
+    private val onTaskDelete: (TaskEntity) -> Unit,
+    private val onTaskEdit: (TaskEntity) -> Unit
 ) : RecyclerView.Adapter<TaskViewHolder>() {
 
     private var tasks: List<TaskEntity> = emptyList()
@@ -17,7 +18,7 @@ class TaskAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_task, parent, false)
-        return TaskViewHolder(view, onTaskComplete, onTaskDelete)
+        return TaskViewHolder(view, onTaskComplete, onTaskDelete, onTaskEdit)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
