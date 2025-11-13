@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
     val tasks: Flow<List<TaskEntity>> = repository.getAllTasks()
+    val completeTasks: Flow<List<TaskEntity>> = repository.getAllCompleteTasks()
     private val _dataLoading = MutableSharedFlow<Boolean>()
     val dataLoading: SharedFlow<Boolean> = _dataLoading
 

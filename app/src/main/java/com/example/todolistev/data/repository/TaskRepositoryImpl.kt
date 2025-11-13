@@ -23,6 +23,10 @@ class TaskRepositoryImpl(
         return taskDao.getTasks()
     }
 
+    override fun getAllCompleteTasks(): Flow<List<TaskEntity>> {
+        return taskDao.getCompleteTasks()
+    }
+
     override suspend fun insert(task: TaskEntity) {
         withContext(backgroundDispatcher){
             taskDao.insertTask(task)

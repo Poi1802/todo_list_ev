@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView android:id="@+id/task_card_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:backgroundTint="@color/task_bg_light"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    android:layout_marginBottom="8dp"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        >
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleX="1.3"
+            android:scaleY="1.3"
+            />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <!-- Заголовок задачи -->
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Название задачи"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/task_main_text_light"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:visibility="gone"/>
+
+            <!-- Описание задачи -->
+            <TextView
+                android:id="@+id/tv_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Описание задачи будет здесь"
+                android:textSize="16sp"
+                android:textColor="@color/task_main_text_light"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:visibility="visible"/>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/button_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="delete"
+            android:src="@drawable/delete_ic"
+            android:backgroundTint="@color/task_bg_light"
+            />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

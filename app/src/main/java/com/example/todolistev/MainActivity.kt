@@ -1,12 +1,18 @@
 package com.example.todolistev
 
+import android.app.ActivityOptions
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -27,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityMainBinding
     private lateinit var dialogBinding: CustomDialogLayoutBinding
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,6 +43,11 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(mainBinding.root)
 
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         setupViewModel()
         setupRecyclerView()
@@ -43,12 +55,24 @@ class MainActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
+    // Устанавливаем клик события
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun setupClickListeners() {
         mainBinding.fabAdd.setOnClickListener { view ->
             showAddTaskDialog()
         }
+
+        mainBinding.arrowBack.setOnClickListener { view ->
+            val intent = Intent(this, MainNavActivity::class.java)
+
+            startActivity(intent)
+
+            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN,
+                R.anim.slide_in_right, R.anim.slide_out_left)
+        }
     }
 
+    // Показывает диалог окно добаления задачи
     fun showAddTaskDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog_layout, null)
         dialogBinding = CustomDialogLayoutBinding.bind(dialogView)
@@ -78,8 +102,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.addTask(taskDescription = taskText)
     }
 
+    // Наблюдаем за задачами и обновляем RecyclerView
     private fun setupObservers() {
-        // Наблюдаем за задачами и обновляем RecyclerView
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.tasks.collect { tasks ->
@@ -90,6 +114,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Обновление пустого состояния списка задач
     private fun updateEmptyState(isEmpty: Boolean) {
         if(isEmpty) {
             mainBinding.textEmptyTasks.visibility = View.VISIBLE
