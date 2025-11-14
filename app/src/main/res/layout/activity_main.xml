@@ -46,7 +46,7 @@
         tools:listitem="@layout/item_task"
         android:layout_weight="1"
         android:layout_marginVertical="10dp"
-        android:visibility="gone"
+        android:visibility="visible"
         />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

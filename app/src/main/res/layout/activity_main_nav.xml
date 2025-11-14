@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:fontFamily="@font/montserrat_semibold"
-            android:textColor="@color/task_bg_light"
+            android:textColor="@color/white"
             tools:text="Kate" />
     </LinearLayout>
 
@@ -58,7 +58,7 @@
             android:drawablePadding="15dp"
             android:fontFamily="@font/montserrat_semibold"
             android:text="Задачи"
-            android:textColor="@color/task_bg_light" />
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/complete_tasks_nav_text"
@@ -68,7 +68,7 @@
             android:drawablePadding="15dp"
             android:fontFamily="@font/montserrat_semibold"
             android:text="Завершенные задачи"
-            android:textColor="@color/task_bg_light" />
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

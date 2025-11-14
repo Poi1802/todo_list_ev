@@ -1,5 +1,7 @@
 package com.example.todolistev.presentation
 
+import android.graphics.Color
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -23,6 +25,16 @@ class TaskAdapter(
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         holder.bind(tasks[position])
+
+        if (tasks[position].isCompleted) {
+            // Создаем перечеркнутый текст
+            holder.textViewDescription.paintFlags = holder.textViewDescription.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            holder.textViewDescription.setTextColor(Color.GRAY)
+        } else {
+            // Убираем перечеркивание
+            holder.textViewDescription.paintFlags = holder.textViewDescription.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            holder.textViewDescription.setTextColor(Color.WHITE)
+        }
     }
 
     override fun getItemCount(): Int = tasks.size

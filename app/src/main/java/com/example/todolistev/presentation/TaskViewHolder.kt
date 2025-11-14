@@ -1,22 +1,17 @@
 package com.example.todolistev.presentation
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
-import android.media.Image
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
-import com.example.todolistev.MainActivity
 import com.example.todolistev.R
 import com.example.todolistev.data.model.TaskEntity
-import com.example.todolistev.databinding.CustomDialogLayoutBinding
 import com.example.todolistev.databinding.CustomEditDialogLayoutBinding
 
 class TaskViewHolder(
@@ -27,7 +22,7 @@ class TaskViewHolder(
 ) : RecyclerView.ViewHolder(itemView) {
     private val checkBoxComplete: CheckBox = itemView.findViewById(R.id.checkbox_complete)
     private val textViewTitle: TextView = itemView.findViewById(R.id.tv_title)
-    private val textViewDescription: TextView = itemView.findViewById(R.id.tv_description)
+    val textViewDescription: TextView = itemView.findViewById(R.id.tv_description)
     private val buttonDelete: ImageButton = itemView.findViewById(R.id.button_delete)
     private val editButton: ImageButton = itemView.findViewById(R.id.edit_button)
     private lateinit var editDialog: CustomEditDialogLayoutBinding
@@ -35,7 +30,7 @@ class TaskViewHolder(
     private var currentTask: TaskEntity? = null
 
     init {
-        setupClickListeners();
+        setupClickListeners()
     }
 
     fun bind(task: TaskEntity) {
@@ -54,7 +49,7 @@ class TaskViewHolder(
             currentTask?.let { task ->
                 if (isChecked != task.isCompleted) {
                     onTaskComplete(task.copy(isCompleted = isChecked))
-                    updateTextAppearance(task.isCompleted)
+                    updateTextAppearance(task)
                 }
             }
         }
@@ -73,13 +68,16 @@ class TaskViewHolder(
         }
     }
 
-    private fun updateTextAppearance(isComplete: Boolean) {
-        if (isComplete) {
-            textViewTitle.paintFlags = textViewTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            textViewTitle.setTextColor(Color.GRAY)
+    private fun updateTextAppearance(task: TaskEntity) {
+
+        if (task.isCompleted) {
+            // Создаем перечеркнутый текст
+            textViewDescription.paintFlags = textViewDescription.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            textViewDescription.setTextColor(Color.GRAY)
         } else {
-            textViewTitle.paintFlags = textViewTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            textViewTitle.setTextColor(Color.BLACK)
+            // Убираем перечеркивание
+            textViewDescription.paintFlags = textViewDescription.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            textViewTitle.setTextColor(Color.WHITE)
         }
     }
 
