@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.todolistev.R
 import com.example.todolistev.data.model.TaskEntity
 import com.example.todolistev.databinding.CustomEditDialogLayoutBinding
+import java.text.SimpleDateFormat
 
 class TaskViewHolder(
     itemView: View,
@@ -25,19 +26,27 @@ class TaskViewHolder(
     val textViewDescription: TextView = itemView.findViewById(R.id.tv_description)
     private val buttonDelete: ImageButton = itemView.findViewById(R.id.button_delete)
     private val editButton: ImageButton = itemView.findViewById(R.id.edit_button)
+    private val dueDate: TextView = itemView.findViewById(R.id.tv_date)
     private lateinit var editDialog: CustomEditDialogLayoutBinding
 
-    private var currentTask: TaskEntity? = null
+    private val formatter = SimpleDateFormat("MMM. dd, yyyy")
+
+
+
+    private var _currentTask: TaskEntity? = null
+    private val currentTask: TaskEntity
+        get() = _currentTask ?: throw IllegalStateException("current task must not be null")
 
     init {
         setupClickListeners()
     }
 
     fun bind(task: TaskEntity) {
-        currentTask = task
+        _currentTask = task
         textViewTitle.text = task.taskTitle
         textViewDescription.text = task.taskDescription
         checkBoxComplete.isChecked = task.isCompleted
+        dueDate.text = formatter.format(task.taskDueDate)
 
         checkBoxComplete.setOnCheckedChangeListener(null)
         checkBoxComplete.isChecked = task.isCompleted
@@ -46,7 +55,7 @@ class TaskViewHolder(
 
     private fun setupClickListeners() {
         checkBoxComplete.setOnCheckedChangeListener { _, isChecked ->
-            currentTask?.let { task ->
+            currentTask.let { task ->
                 if (isChecked != task.isCompleted) {
                     onTaskComplete(task.copy(isCompleted = isChecked))
                     updateTextAppearance(task)
@@ -55,16 +64,15 @@ class TaskViewHolder(
         }
 
         buttonDelete.setOnClickListener {
-            currentTask?.let { task ->
-                onTaskDelete(task)
-            }
+            onTaskDelete(currentTask)
         }
 
         editButton.setOnClickListener {
-            currentTask?.let { task ->
-//                onTaskEdit(task)
-                showEditTaskDialog(task)
-            }
+            showEditTaskDialog(currentTask)
+        }
+
+        textViewDescription.setOnClickListener {
+            showEditTaskDialog(currentTask)
         }
     }
 
@@ -77,7 +85,7 @@ class TaskViewHolder(
         } else {
             // Убираем перечеркивание
             textViewDescription.paintFlags = textViewDescription.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            textViewTitle.setTextColor(Color.WHITE)
+            textViewDescription.setTextColor(Color.WHITE)
         }
     }
 
@@ -93,7 +101,7 @@ class TaskViewHolder(
 
         editDialog.inputTaskText.setText(task.taskDescription)
 
-        editDialog.dialogAddBtn.setOnClickListener { view ->
+        editDialog.dialogAddBtn.setOnClickListener {
             val taskText = editDialog.inputTaskText.text.toString().trim()
             if (taskText.isNotEmpty()) {
                 onTaskEdit(task.copy(taskDescription = taskText))

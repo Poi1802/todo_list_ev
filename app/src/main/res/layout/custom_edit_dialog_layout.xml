@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@android:color/transparent"
-    android:backgroundTint="@android:color/transparent">
+    android:backgroundTint="@color/bg_primary_light"
+    android:background="@color/bg_primary_light">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/bg_primary_light"
         app:cardCornerRadius="16dp"
-        android:backgroundTint="@color/task_bg_light"
         android:elevation="4dp"
         tools:ignore="MissingConstraints">
         <LinearLayout
@@ -35,10 +35,21 @@
                 android:drawablePadding="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:textColor="@color/task_main_text_light"
+                android:textColorHint="@color/task_main_text_light"
                 android:hint="Напишите свою задачу"
                 android:layout_gravity="center"
                 android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/tv_due_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="10dp"
+                android:textSize="16sp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/task_main_text_light"
+                android:text="Задать дату выполнения"
+                app:drawableStartCompat="@drawable/calendar_add_ic"/>
             <ImageButton
                 android:id="@+id/dialog_add_btn"
                 android:layout_width="wrap_content"

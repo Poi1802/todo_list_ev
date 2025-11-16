@@ -18,12 +18,13 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     private val _dataLoading = MutableSharedFlow<Boolean>()
     val dataLoading: SharedFlow<Boolean> = _dataLoading
 
-    fun addTask(taskDescription: String) {
+    fun addTask(taskDescription: String, dueDateInMilles: Long) {
         val task = TaskEntity(
             id = 0,
             taskTitle = "Описание:)",
             taskDescription = taskDescription,
             taskCategory = TaskCategory.PERSONAL,
+            taskDueDate = dueDateInMilles,
             isCompleted = false
         )
 

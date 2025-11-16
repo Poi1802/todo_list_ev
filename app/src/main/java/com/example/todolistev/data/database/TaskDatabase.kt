@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.todolistev.data.model.TaskCategory
 import com.example.todolistev.data.model.TaskEntity
 
-const val DATABASE_VERSION = 1
+const val DATABASE_VERSION = 4
 
 @Database(entities = [TaskEntity::class], version = DATABASE_VERSION, exportSchema = true)
 abstract class TaskDatabase : RoomDatabase() {
@@ -23,34 +23,36 @@ abstract class TaskDatabase : RoomDatabase() {
                     context.applicationContext,
                     TaskDatabase::class.java,
                     "todo_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
             }
 
             return INSTANCE
         }
 
-        val PREPOPULATE_DATA: List<TaskEntity> = listOf<TaskEntity>(
-            TaskEntity(
-                0,
-                "Simple title1",
-                "Simple task description1",
-                TaskCategory.FITNESS,
-                false
-            ),
-            TaskEntity(
-                0,
-                "Simple title2",
-                "Simple task description2",
-                TaskCategory.FITNESS,
-                false
-            ),
-            TaskEntity(
-                0,
-                "Simple title3",
-                "Simple task description3",
-                TaskCategory.WORK,
-                false
-            ),
-        )
+//        val PREPOPULATE_DATA: List<TaskEntity> = listOf<TaskEntity>(
+//            TaskEntity(
+//                0,
+//                "Simple title1",
+//                "Simple task description1",
+//                TaskCategory.FITNESS,
+//                false
+//            ),
+//            TaskEntity(
+//                0,
+//                "Simple title2",
+//                "Simple task description2",
+//                TaskCategory.FITNESS,
+//                false
+//            ),
+//            TaskEntity(
+//                0,
+//                "Simple title3",
+//                "Simple task description3",
+//                TaskCategory.WORK,
+//                false
+//            ),
+//        )
     }
 }

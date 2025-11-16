@@ -1,11 +1,16 @@
 package com.example.todolistev
 
+import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.style.TtsSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -24,14 +29,23 @@ import com.example.todolistev.databinding.CustomDialogLayoutBinding
 import com.example.todolistev.presentation.TaskAdapter
 import com.example.todolistev.presentation.TaskViewModel
 import com.example.todolistev.presentation.TaskViewModelFactory
+import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.logging.SimpleFormatter
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
     private lateinit var viewModel: TaskViewModel
     private lateinit var adapter: TaskAdapter
     private lateinit var mainBinding: ActivityMainBinding
     private lateinit var dialogBinding: CustomDialogLayoutBinding
+    private val calendar: Calendar = Calendar.getInstance()
+
+    @SuppressLint("SimpleDateFormat")
+    private val formatter = SimpleDateFormat("MMM. dd, yyyy")
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,8 +81,10 @@ class MainActivity : AppCompatActivity() {
 
             startActivity(intent)
 
-            overrideActivityTransition(OVERRIDE_TRANSITION_OPEN,
-                R.anim.slide_in_right, R.anim.slide_out_left)
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_OPEN,
+                R.anim.slide_in_right, R.anim.slide_out_left
+            )
         }
     }
 
@@ -87,19 +103,38 @@ class MainActivity : AppCompatActivity() {
 
         alertDialog.show()
 
-        dialogBinding.dialogAddBtn.setOnClickListener { view ->
+        dialogBinding.tvDueDate.setOnClickListener {
+            DatePickerDialog(
+                this,
+                this,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+                .show()
+
+            dialogBinding.tvDueDate.text = displayFormatDate(calendar.timeInMillis)
+        }
+        dialogBinding.dialogAddBtn.setOnClickListener {
             val taskText = dialogBinding.inputTaskText.text.toString().trim()
             if (taskText.isNotEmpty()) {
-                addNewTask(taskText)
+                addNewTask(taskText, calendar.timeInMillis)
                 alertDialog.cancel()
             } else {
                 Toast.makeText(this, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
-    private fun addNewTask(taskText: String) {
-        viewModel.addTask(taskDescription = taskText)
+    private fun displayFormatDate(timeInMillis: Long): String {
+        return formatter.format(timeInMillis)
+    }
+
+    private fun addNewTask(taskText: String, dueDateInMilles: Long) {
+        viewModel.addTask(
+            taskDescription = taskText, dueDateInMilles = dueDateInMilles,
+        )
     }
 
     // Наблюдаем за задачами и обновляем RecyclerView
@@ -116,7 +151,7 @@ class MainActivity : AppCompatActivity() {
 
     // Обновление пустого состояния списка задач
     private fun updateEmptyState(isEmpty: Boolean) {
-        if(isEmpty) {
+        if (isEmpty) {
             mainBinding.textEmptyTasks.visibility = View.VISIBLE
             mainBinding.recyclerViewTasks.visibility = View.GONE
         } else {
@@ -141,7 +176,12 @@ class MainActivity : AppCompatActivity() {
         mainBinding.recyclerViewTasks.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
-            addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
+            addItemDecoration(
+                DividerItemDecoration(
+                    this@MainActivity,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
         }
     }
 
@@ -154,5 +194,14 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
 
+    }
+
+    override fun onDateSet(
+        view: DatePicker?,
+        year: Int,
+        month: Int,
+        dayOfMonth: Int,
+    ) {
+        calendar.set(year, month, dayOfMonth)
     }
 }

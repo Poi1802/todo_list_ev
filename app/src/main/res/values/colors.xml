@@ -2,12 +2,12 @@
 <resources>
     <color name="black">#1E1E23</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="bg_primary_light">#1E2024</color>
+    <color name="bg_primary_light">#050505</color>
     <color name="main_text_light">#556BB5</color>
-    <color name="task_bg_light">#6B6B6B</color>
-    <color name="task_main_text_light">#DDECF6</color>
+    <color name="task_bg_light">#202021</color>
+    <color name="task_main_text_light">#DFDFDF</color>
     <color name="task_secondary_text_light">#BEBCB8</color>
     <color name="floating_btn_light">#556BB5</color>
-    <color name="dialog_add_btn_light">#2B2D30</color>
+    <color name="dialog_add_btn_light">#707271</color>
     <color name="dialog_bg_behavior">#1F2945</color>
 </resources>

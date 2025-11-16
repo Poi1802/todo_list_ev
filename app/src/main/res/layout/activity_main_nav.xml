@@ -21,17 +21,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints">
+        tools:ignore="MissingConstraints,UseCompoundDrawables">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="TODO"
             android:src="@drawable/rounded_checkbox_background" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:fontFamily="@font/montserrat_semibold"
             android:textColor="@color/white"
             tools:text="Kate" />
@@ -54,21 +55,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-            android:drawableStart="@drawable/tasks_nav_ic"
             android:drawablePadding="15dp"
             android:fontFamily="@font/montserrat_semibold"
             android:text="Задачи"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            app:drawableStartCompat="@drawable/tasks_nav_ic" />
 
         <TextView
             android:id="@+id/complete_tasks_nav_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/tasks_complete_nav_ic"
             android:drawablePadding="15dp"
             android:fontFamily="@font/montserrat_semibold"
             android:text="Завершенные задачи"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            app:drawableStartCompat="@drawable/tasks_complete_nav_ic" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
