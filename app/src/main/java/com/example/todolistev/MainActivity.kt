@@ -113,7 +113,6 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             )
                 .show()
 
-            dialogBinding.tvDueDate.text = displayFormatDate(calendar.timeInMillis)
         }
         dialogBinding.dialogAddBtn.setOnClickListener {
             val taskText = dialogBinding.inputTaskText.text.toString().trim()
@@ -203,5 +202,6 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         dayOfMonth: Int,
     ) {
         calendar.set(year, month, dayOfMonth)
+        dialogBinding.tvDueDate.text = displayFormatDate(calendar.timeInMillis)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.todolistev.presentation
 
+import android.app.DatePickerDialog
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
@@ -10,10 +11,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
+import com.example.todolistev.MainActivity
 import com.example.todolistev.R
 import com.example.todolistev.data.model.TaskEntity
 import com.example.todolistev.databinding.CustomEditDialogLayoutBinding
 import java.text.SimpleDateFormat
+import java.util.Calendar
 
 class TaskViewHolder(
     itemView: View,
@@ -30,6 +33,7 @@ class TaskViewHolder(
     private lateinit var editDialog: CustomEditDialogLayoutBinding
 
     private val formatter = SimpleDateFormat("MMM. dd, yyyy")
+    private val calendar = Calendar.getInstance()
 
 
 
@@ -46,7 +50,7 @@ class TaskViewHolder(
         textViewTitle.text = task.taskTitle
         textViewDescription.text = task.taskDescription
         checkBoxComplete.isChecked = task.isCompleted
-        dueDate.text = formatter.format(task.taskDueDate)
+        dueDate.text = "До: " + formatter.format(task.taskDueDate)
 
         checkBoxComplete.setOnCheckedChangeListener(null)
         checkBoxComplete.isChecked = task.isCompleted
@@ -100,16 +104,46 @@ class TaskViewHolder(
         alertDialog.show()
 
         editDialog.inputTaskText.setText(task.taskDescription)
+        editDialog.tvDueDate.text = dueDate.text
 
+
+        editDialog.tvDueDate.setOnClickListener {
+            showDatePickerDialog(task)
+        }
         editDialog.dialogAddBtn.setOnClickListener {
             val taskText = editDialog.inputTaskText.text.toString().trim()
             if (taskText.isNotEmpty()) {
-                onTaskEdit(task.copy(taskDescription = taskText))
+                onTaskEdit(task.copy(taskDescription = taskText, taskDueDate=calendar.timeInMillis))
                 alertDialog.cancel()
             } else {
                 Toast.makeText(itemView.context, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun showDatePickerDialog(task: TaskEntity) {
+        if (task.taskDueDate > 0) {
+            calendar.timeInMillis = task.taskDueDate;
+        }
+
+        DatePickerDialog(
+            editDialog.root.context,
+            {_, year, month, dayOfMonth ->
+                onDateSet(year,month,dayOfMonth)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+            .show()
+    }
+    fun onDateSet(
+        year: Int,
+        month: Int,
+        dayOfMonth: Int,
+    ) {
+        calendar.set(year, month, dayOfMonth)
+        editDialog.tvDueDate.text = "До: " + formatter.format(calendar.timeInMillis)
     }
 }
 
