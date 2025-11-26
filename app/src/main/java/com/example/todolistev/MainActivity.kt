@@ -2,17 +2,23 @@ package com.example.todolistev
 
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.app.AlarmManager
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.style.TtsSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.DatePicker
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -36,16 +42,24 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.logging.SimpleFormatter
 
-class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
-
+class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
+    TimePickerDialog.OnTimeSetListener {
+    val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Toast.makeText(this, "Разрешение \"Точные будильники\" предоставлено", Toast.LENGTH_SHORT).show()
+            }
+        }
     private lateinit var viewModel: TaskViewModel
     private lateinit var adapter: TaskAdapter
     private lateinit var mainBinding: ActivityMainBinding
     private lateinit var dialogBinding: CustomDialogLayoutBinding
+    private lateinit var alarmManager: AlarmManager
     private val calendar: Calendar = Calendar.getInstance()
 
+
     @SuppressLint("SimpleDateFormat")
-    private val formatter = SimpleDateFormat("MMM. dd, yyyy")
+    private val formatter = SimpleDateFormat("MMM. dd, yyyy HH:mm")
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +75,13 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+
+        if(!alarmManager.canScheduleExactAlarms()) {
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+            requestPermissionLauncher.launch(intent)
         }
 
         setupViewModel()
@@ -113,14 +134,19 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             )
                 .show()
 
+
         }
         dialogBinding.dialogAddBtn.setOnClickListener {
             val taskText = dialogBinding.inputTaskText.text.toString().trim()
-            if (taskText.isNotEmpty()) {
+            if (taskText.isNotEmpty() && calendar.timeInMillis > System.currentTimeMillis()) {
                 addNewTask(taskText, calendar.timeInMillis)
                 alertDialog.cancel()
             } else {
-                Toast.makeText(this, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
+                if (taskText.isEmpty()) {
+                    Toast.makeText(this, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Нельзя запланировать прошлое", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -132,6 +158,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
     private fun addNewTask(taskText: String, dueDateInMilles: Long) {
         viewModel.addTask(
+            this@MainActivity,
             taskDescription = taskText, dueDateInMilles = dueDateInMilles,
         )
     }
@@ -192,7 +219,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val factory = TaskViewModelFactory(applicationContainer.taskRepository)
 
         viewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
-
+        viewModel.alarmManager = alarmManager
     }
 
     override fun onDateSet(
@@ -202,6 +229,28 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         dayOfMonth: Int,
     ) {
         calendar.set(year, month, dayOfMonth)
+
+        TimePickerDialog(
+            this,
+            this,
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true
+        )
+            .show()
+    }
+
+    override fun onTimeSet(
+        view: TimePicker?,
+        hourOfDay: Int,
+        minute: Int
+    ) {
+        calendar.apply {
+            set(Calendar.HOUR_OF_DAY, hourOfDay)
+            set(Calendar.MINUTE, minute)
+        }
+
         dialogBinding.tvDueDate.text = displayFormatDate(calendar.timeInMillis)
+
     }
 }

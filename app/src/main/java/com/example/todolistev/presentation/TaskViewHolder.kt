@@ -1,6 +1,7 @@
 package com.example.todolistev.presentation
 
 import android.app.DatePickerDialog
+import android.app.PendingIntent
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
@@ -10,9 +11,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todolistev.MainActivity
 import com.example.todolistev.R
+import com.example.todolistev.Utils
 import com.example.todolistev.data.model.TaskEntity
 import com.example.todolistev.databinding.CustomEditDialogLayoutBinding
 import java.text.SimpleDateFormat
@@ -32,9 +35,8 @@ class TaskViewHolder(
     private val dueDate: TextView = itemView.findViewById(R.id.tv_date)
     private lateinit var editDialog: CustomEditDialogLayoutBinding
 
-    private val formatter = SimpleDateFormat("MMM. dd, yyyy")
+    private val formatter = SimpleDateFormat("MMM. dd, yyyy HH:mm")
     private val calendar = Calendar.getInstance()
-
 
 
     private var _currentTask: TaskEntity? = null
@@ -73,6 +75,7 @@ class TaskViewHolder(
 
         editButton.setOnClickListener {
             showEditTaskDialog(currentTask)
+
         }
 
         textViewDescription.setOnClickListener {
@@ -84,17 +87,20 @@ class TaskViewHolder(
 
         if (task.isCompleted) {
             // Создаем перечеркнутый текст
-            textViewDescription.paintFlags = textViewDescription.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            textViewDescription.paintFlags =
+                textViewDescription.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             textViewDescription.setTextColor(Color.GRAY)
         } else {
             // Убираем перечеркивание
-            textViewDescription.paintFlags = textViewDescription.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            textViewDescription.paintFlags =
+                textViewDescription.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             textViewDescription.setTextColor(Color.WHITE)
         }
     }
 
     fun showEditTaskDialog(task: TaskEntity) {
-        val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.custom_edit_dialog_layout, null)
+        val dialogView =
+            LayoutInflater.from(itemView.context).inflate(R.layout.custom_edit_dialog_layout, null)
         editDialog = CustomEditDialogLayoutBinding.bind(dialogView)
 
         val alertDialog = AlertDialog.Builder(itemView.context)
@@ -113,10 +119,16 @@ class TaskViewHolder(
         editDialog.dialogAddBtn.setOnClickListener {
             val taskText = editDialog.inputTaskText.text.toString().trim()
             if (taskText.isNotEmpty()) {
-                onTaskEdit(task.copy(taskDescription = taskText, taskDueDate=calendar.timeInMillis))
+                onTaskEdit(
+                    task.copy(
+                        taskDescription = taskText,
+                        taskDueDate = calendar.timeInMillis
+                    )
+                )
                 alertDialog.cancel()
             } else {
-                Toast.makeText(itemView.context, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
+                Toast.makeText(itemView.context, "Текст не может быть пустым", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -128,8 +140,8 @@ class TaskViewHolder(
 
         DatePickerDialog(
             editDialog.root.context,
-            {_, year, month, dayOfMonth ->
-                onDateSet(year,month,dayOfMonth)
+            { _, year, month, dayOfMonth ->
+                onDateSet(year, month, dayOfMonth)
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -137,6 +149,7 @@ class TaskViewHolder(
         )
             .show()
     }
+
     fun onDateSet(
         year: Int,
         month: Int,

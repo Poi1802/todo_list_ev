@@ -1,8 +1,12 @@
 package com.example.todolistev.presentation
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.todolistev.data.database.TaskDatabase
+import com.example.todolistev.Utils
 import com.example.todolistev.data.model.TaskCategory
 import com.example.todolistev.data.model.TaskEntity
 import com.example.todolistev.domain.repository.TaskRepository
@@ -13,12 +17,13 @@ import kotlinx.coroutines.launch
 
 class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
+    lateinit var alarmManager: AlarmManager
     val tasks: Flow<List<TaskEntity>> = repository.getAllTasks()
     val completeTasks: Flow<List<TaskEntity>> = repository.getAllCompleteTasks()
     private val _dataLoading = MutableSharedFlow<Boolean>()
     val dataLoading: SharedFlow<Boolean> = _dataLoading
 
-    fun addTask(taskDescription: String, dueDateInMilles: Long) {
+    fun addTask(context: Context, taskDescription: String, dueDateInMilles: Long) {
         val task = TaskEntity(
             id = 0,
             taskTitle = "Описание:)",
@@ -27,6 +32,8 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
             taskDueDate = dueDateInMilles,
             isCompleted = false
         )
+
+        scheduleNotification(context, task.id, task.taskDueDate, task.taskDescription)
 
         showProgress()
         viewModelScope.launch {
@@ -75,6 +82,13 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     private fun showProgress() {
         viewModelScope.launch {
             _dataLoading.emit(true)
+        }
+    }
+
+    fun scheduleNotification(context: Context, id: Int, date: Long, text: String) {
+        val pendingIntent: PendingIntent? = Utils.getPendingIntent(context, id, text)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, date, pendingIntent!!)
         }
     }
 
