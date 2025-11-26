@@ -6,7 +6,7 @@ import android.content.Intent
 
 class Utils {
     companion object{
-        fun getPendingIntent(context: Context, id: Int, text: String): PendingIntent? {
+        fun getPendingIntent(context: Context, id: Int, text: String): PendingIntent {
             val intent = Intent(context, ReminderBroadcastReceiver::class.java).apply {
                 putExtra("text", text)
                 putExtra("id", id)

@@ -6,6 +6,10 @@ import android.content.Context
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.example.todolistev.ReminderWorker
 import com.example.todolistev.Utils
 import com.example.todolistev.data.model.TaskCategory
 import com.example.todolistev.data.model.TaskEntity
@@ -14,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
@@ -33,7 +38,9 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
             isCompleted = false
         )
 
-        scheduleNotification(context, task.id, task.taskDueDate, task.taskDescription)
+        with(task) {
+            scheduleNotification(context, id, taskDueDate, taskDescription)
+        }
 
         showProgress()
         viewModelScope.launch {
@@ -86,10 +93,26 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     }
 
     fun scheduleNotification(context: Context, id: Int, date: Long, text: String) {
-        val pendingIntent: PendingIntent? = Utils.getPendingIntent(context, id, text)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, date, pendingIntent!!)
-        }
+//        val pendingIntent: PendingIntent? = Utils.getPendingIntent(context, id, text)
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
+//            alarmManager.setExact(AlarmManager.RTC_WAKEUP, date, pendingIntent!!)
+//        }
+
+        val currentTime = System.currentTimeMillis()
+        val delay = date - currentTime
+
+        val inputData = workDataOf(
+            "text" to text,
+            "id" to id
+        )
+
+        val reminderWork = OneTimeWorkRequestBuilder<ReminderWorker>()
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setInputData(inputData)
+            .addTag("Reminder_$id")
+            .build()
+
+        WorkManager.getInstance(context).enqueue(reminderWork)
     }
 
 
