@@ -1,17 +1,12 @@
 package com.example.todolistev
 
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
 import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import android.text.style.TtsSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.DatePicker
@@ -35,12 +30,9 @@ import com.example.todolistev.databinding.CustomDialogLayoutBinding
 import com.example.todolistev.presentation.TaskAdapter
 import com.example.todolistev.presentation.TaskViewModel
 import com.example.todolistev.presentation.TaskViewModelFactory
-import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
-import java.util.logging.SimpleFormatter
 
 class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
     TimePickerDialog.OnTimeSetListener {
@@ -54,7 +46,6 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
     private lateinit var adapter: TaskAdapter
     private lateinit var mainBinding: ActivityMainBinding
     private lateinit var dialogBinding: CustomDialogLayoutBinding
-    private lateinit var alarmManager: AlarmManager
     private val calendar: Calendar = Calendar.getInstance()
 
 
@@ -77,17 +68,11 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
             insets
         }
 
-        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-
-        if(!alarmManager.canScheduleExactAlarms()) {
-            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-            requestPermissionLauncher.launch(intent)
-        }
-
         setupViewModel()
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
+        checkAlarmPermissions()
     }
 
     // Устанавливаем клик события
@@ -216,10 +201,9 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         val applicationContainer = (application as TaskListApplication)
 
         // Создаем ViewModel, передавая ей нужную зависимость (интерфейс)
-        val factory = TaskViewModelFactory(applicationContainer.taskRepository)
+        val factory = TaskViewModelFactory(applicationContext, applicationContainer.taskRepository)
 
         viewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
-        viewModel.alarmManager = alarmManager
     }
 
     override fun onDateSet(
@@ -252,5 +236,15 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
 
         dialogBinding.tvDueDate.text = displayFormatDate(calendar.timeInMillis)
 
+    }
+
+    private fun checkAlarmPermissions() {
+        // На Android 12+ можно проверить разрешения на точные будильники
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            if (!alarmManager.canScheduleExactAlarms()) {
+                Toast.makeText(this, "Для точных напоминаний нужно разрешение", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

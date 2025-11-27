@@ -55,7 +55,7 @@ class CompleteTasksActivity : AppCompatActivity() {
         val applicationContainer = (application as TaskListApplication)
 
         // Создаем ViewModel, передавая ей нужную зависимость(интерфейс)
-        val factory = TaskViewModelFactory(applicationContainer.taskRepository)
+        val factory = TaskViewModelFactory(applicationContext, applicationContainer.taskRepository)
 
         viewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
     }
