@@ -29,26 +29,8 @@ class TaskListApplication: Application() {
     // 3. Создаем UseCase'ы или просто прокси-переменную для ViewModel (зависит от userRepositoryImpl)
     lateinit var taskRepository: TaskRepository // Открытый интерфейс
 
-    companion object {
-        const val channelName = "Reminders"
-        const val channelDescription = "Channel for reminders"
-        const val channelId = "reminders"
-    }
-
     override fun onCreate() {
         super.onCreate()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-                .apply {
-                    description = channelDescription
-                    setSound(Settings.System.DEFAULT_NOTIFICATION_URI, AudioAttributes.Builder().setUsage(
-                        AudioAttributes.USAGE_NOTIFICATION). build())
-                }
-
-            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
 
         // Инициализация
         database = TaskDatabase.getInstance(this)!!

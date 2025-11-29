@@ -20,7 +20,7 @@ interface TaskDao {
     @Delete
     suspend fun deleteTask(task: TaskEntity): Int
 
-    @Query("SELECT * FROM tasks ORDER BY id DESC")
+    @Query("SELECT * FROM tasks WHERE is_completed = 0 ORDER BY id DESC")
     fun getTasks(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE is_completed = 1 ORDER BY id DESC")

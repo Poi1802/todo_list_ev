@@ -1,8 +1,6 @@
 package com.example.todolistev.data.repository
 
-import android.content.Context
 import com.example.todolistev.data.database.TaskDao
-import com.example.todolistev.data.database.TaskDatabase
 import com.example.todolistev.data.model.TaskEntity
 import com.example.todolistev.domain.repository.TaskRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,10 +25,12 @@ class TaskRepositoryImpl(
         return taskDao.getCompleteTasks()
     }
 
-    override suspend fun insert(task: TaskEntity) {
+    override suspend fun insert(task: TaskEntity): Long {
+        val taskId: Long
         withContext(backgroundDispatcher){
-            taskDao.insertTask(task)
+            taskId =  taskDao.insertTask(task)
         }
+        return taskId
     }
 
     override suspend fun update(task: TaskEntity) {

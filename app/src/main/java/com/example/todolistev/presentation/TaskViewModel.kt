@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
-class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
+class TaskViewModel(private val repository: TaskRepository, private val context: Context) : ViewModel() {
 
     lateinit var alarmManager: AlarmManager
     val tasks: Flow<List<TaskEntity>> = repository.getAllTasks()
@@ -23,26 +23,35 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     private val _dataLoading = MutableSharedFlow<Boolean>()
     val dataLoading: SharedFlow<Boolean> = _dataLoading
 
-    fun addTask(context: Context, taskDescription: String, dueDateInMilles: Long) {
+    fun addTask(taskDescription: String, dueDateInMiles: Long) {
         val task = TaskEntity(
             id = 0,
             taskTitle = "Описание:)",
             taskDescription = taskDescription,
             taskCategory = TaskCategory.PERSONAL,
-            taskDueDate = dueDateInMilles,
+            taskDueDate = dueDateInMiles,
             isCompleted = false
         )
 
-        scheduleNotification(context, task.id, task.taskDueDate, task.taskDescription)
+        val taskDueDate = dueDateInMiles - AlarmManager.INTERVAL_HOUR * 8
+//        val taskDueDate = System.currentTimeMillis() + 10 *1000
+
 
         showProgress()
         viewModelScope.launch {
-            repository.insert(task)
+            val taskId = repository.insert(task)
+            scheduleNotification(taskId.toInt(), taskDueDate, task.taskDescription)
         }
         hideProgress()
     }
 
     fun updateTask(task: TaskEntity) {
+
+        val taskDueDate = task.taskDueDate - AlarmManager.INTERVAL_HOUR * 8
+//        val taskDueDate = System.currentTimeMillis() + 10 *1000
+
+        scheduleNotification(task.id, taskDueDate, task.taskDescription)
+
         showProgress()
         viewModelScope.launch {
             repository.update(task)
@@ -51,6 +60,12 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     }
 
     fun toggleCompletionTask(task: TaskEntity) {
+        if (task.isCompleted) {
+        cancelNotification(task.id, task.taskDescription)
+        } else {
+            scheduleNotification(task.id, task.taskDueDate, task.taskDescription)
+        }
+
         showProgress()
         viewModelScope.launch {
             repository.update(task)
@@ -59,6 +74,8 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     }
 
     fun deleteTask(task: TaskEntity) {
+        cancelNotification(task.id, task.taskDescription)
+
         showProgress()
         viewModelScope.launch {
             repository.delete(task)
@@ -85,12 +102,20 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         }
     }
 
-    fun scheduleNotification(context: Context, id: Int, date: Long, text: String) {
+    private fun scheduleNotification(id: Int, date: Long, text: String) {
         val pendingIntent: PendingIntent? = Utils.getPendingIntent(context, id, text)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, date, pendingIntent!!)
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                date,
+                pendingIntent!!
+            )
         }
     }
 
+    private fun cancelNotification(id: Int, text: String) {
+        val pendingIntent: PendingIntent? = Utils.getPendingIntent(context, id, text)
+        alarmManager.cancel(pendingIntent!!)
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.example.todolistev
 
 import android.app.ActivityOptions
+import android.app.AlarmManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -27,6 +28,7 @@ class CompleteTasksActivity : AppCompatActivity() {
     private lateinit var adapter: TaskAdapter
     private lateinit var mainBinding: ActivityCompleteTasksBinding
     private lateinit var dialogBinding: CustomDialogLayoutBinding
+    private lateinit var alarmManager: AlarmManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +46,8 @@ class CompleteTasksActivity : AppCompatActivity() {
             insets
         }
 
+        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+
         setupViewModel()
         setupRecyclerView()
         setupObservers()
@@ -55,9 +59,10 @@ class CompleteTasksActivity : AppCompatActivity() {
         val applicationContainer = (application as TaskListApplication)
 
         // Создаем ViewModel, передавая ей нужную зависимость(интерфейс)
-        val factory = TaskViewModelFactory(applicationContainer.taskRepository)
+        val factory = TaskViewModelFactory(this@CompleteTasksActivity,applicationContainer.taskRepository)
 
         viewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
+        viewModel.alarmManager = alarmManager
     }
 
     private fun setupRecyclerView() {

@@ -1,17 +1,13 @@
 package com.example.todolistev
 
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
 import android.app.AlarmManager
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.text.style.TtsSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.DatePicker
@@ -35,19 +31,20 @@ import com.example.todolistev.databinding.CustomDialogLayoutBinding
 import com.example.todolistev.presentation.TaskAdapter
 import com.example.todolistev.presentation.TaskViewModel
 import com.example.todolistev.presentation.TaskViewModelFactory
-import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
-import java.util.logging.SimpleFormatter
 
 class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
     TimePickerDialog.OnTimeSetListener {
     val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Toast.makeText(this, "Разрешение \"Точные будильники\" предоставлено", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Разрешение \"Точные будильники\" предоставлено",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     private lateinit var viewModel: TaskViewModel
@@ -79,7 +76,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
 
         alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
 
-        if(!alarmManager.canScheduleExactAlarms()) {
+        if (!alarmManager.canScheduleExactAlarms()) {
             val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
             requestPermissionLauncher.launch(intent)
         }
@@ -158,8 +155,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
 
     private fun addNewTask(taskText: String, dueDateInMilles: Long) {
         viewModel.addTask(
-            this@MainActivity,
-            taskDescription = taskText, dueDateInMilles = dueDateInMilles,
+            taskDescription = taskText, dueDateInMiles = dueDateInMilles,
         )
     }
 
@@ -216,7 +212,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener,
         val applicationContainer = (application as TaskListApplication)
 
         // Создаем ViewModel, передавая ей нужную зависимость (интерфейс)
-        val factory = TaskViewModelFactory(applicationContainer.taskRepository)
+        val factory = TaskViewModelFactory(this@MainActivity, applicationContainer.taskRepository)
 
         viewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
         viewModel.alarmManager = alarmManager

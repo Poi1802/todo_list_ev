@@ -34,7 +34,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".ReminderBroadcastReceiver"/>
+        <receiver android:name=".AlarmReceiver" android:enabled="true"/>
 
         <meta-data
             android:name="preloaded_fonts"

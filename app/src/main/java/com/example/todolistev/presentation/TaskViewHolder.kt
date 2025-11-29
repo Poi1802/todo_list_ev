@@ -2,13 +2,16 @@ package com.example.todolistev.presentation
 
 import android.app.DatePickerDialog
 import android.app.PendingIntent
+import android.app.TimePickerDialog
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.CheckBox
+import android.widget.DatePicker
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
@@ -26,7 +29,8 @@ class TaskViewHolder(
     private val onTaskComplete: (TaskEntity) -> Unit,
     private val onTaskDelete: (TaskEntity) -> Unit,
     private val onTaskEdit: (TaskEntity) -> Unit,
-) : RecyclerView.ViewHolder(itemView) {
+) : RecyclerView.ViewHolder(itemView), DatePickerDialog.OnDateSetListener,
+    TimePickerDialog.OnTimeSetListener {
     private val checkBoxComplete: CheckBox = itemView.findViewById(R.id.checkbox_complete)
     private val textViewTitle: TextView = itemView.findViewById(R.id.tv_title)
     val textViewDescription: TextView = itemView.findViewById(R.id.tv_description)
@@ -118,7 +122,7 @@ class TaskViewHolder(
         }
         editDialog.dialogAddBtn.setOnClickListener {
             val taskText = editDialog.inputTaskText.text.toString().trim()
-            if (taskText.isNotEmpty()) {
+            if (taskText.isNotEmpty() && calendar.timeInMillis > System.currentTimeMillis()) {
                 onTaskEdit(
                     task.copy(
                         taskDescription = taskText,
@@ -127,8 +131,12 @@ class TaskViewHolder(
                 )
                 alertDialog.cancel()
             } else {
-                Toast.makeText(itemView.context, "Текст не может быть пустым", Toast.LENGTH_SHORT)
-                    .show()
+                if (taskText.isEmpty()) {
+                    Toast.makeText(itemView.context, "Текст не может быть пустым", Toast.LENGTH_SHORT).show()
+                }
+                if (calendar.timeInMillis < System.currentTimeMillis()) {
+                    Toast.makeText(itemView.context, "Нельзя запланировать прошлое", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -140,9 +148,7 @@ class TaskViewHolder(
 
         DatePickerDialog(
             editDialog.root.context,
-            { _, year, month, dayOfMonth ->
-                onDateSet(year, month, dayOfMonth)
-            },
+            this,
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
@@ -150,13 +156,40 @@ class TaskViewHolder(
             .show()
     }
 
-    fun onDateSet(
+    private fun displayFormatDate(timeInMillis: Long): String {
+        return formatter.format(timeInMillis)
+    }
+
+    override fun onDateSet(
+        view: DatePicker?,
         year: Int,
         month: Int,
         dayOfMonth: Int,
     ) {
         calendar.set(year, month, dayOfMonth)
-        editDialog.tvDueDate.text = "До: " + formatter.format(calendar.timeInMillis)
+
+        TimePickerDialog(
+            editDialog.root.context,
+            this,
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true
+        )
+            .show()
+    }
+
+    override fun onTimeSet(
+        view: TimePicker?,
+        hourOfDay: Int,
+        minute: Int
+    ) {
+        calendar.apply {
+            set(Calendar.HOUR_OF_DAY, hourOfDay)
+            set(Calendar.MINUTE, minute)
+        }
+
+        editDialog.tvDueDate.text = displayFormatDate(calendar.timeInMillis)
+
     }
 }
 
